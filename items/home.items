@@ -1,0 +1,119 @@
+Group gLiving           "Living"   <living>
+Group gChambreParent           "Chambre parent"  <chambreparent>
+Group gChambreEnfant            "Chambre enfant"        <chambreenfant>
+Group gSanitaire            "Sanitaire"        <sanitaire>
+Group gGarage        "Garage"        <garage>
+Group gJardin        "Jardin"        <jardin>
+Group Weather       "Weather"       <sun>
+
+Group Status
+Group Shutters
+
+
+/* active groups */
+Group:Switch:OR(ON, OFF)        Lumieres      "All Lights [(%d)]"
+Group:Switch:OR(ON, OFF)        Radiateurs     "No. of Active Heatings [(%d)]"     <heating>
+Group:Number:AVG                Temperature "Avg. Room Temperature [%.1f °C]"   <temperature>   (Status)
+Group:Contact:OR(OPEN, CLOSED)  Fenetres     "Open windows [(%d)]"               <contact>
+
+/* Lights */
+Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres) {mqtt="<[mosquitto:/lumieres/cuisine:command:ON]"}
+Switch Lumiere_Salon    "Salon"       (gLiving, Lumieres)
+Switch Lumiere_Coin_Repas    "Coin repas"       (gLiving, Lumieres)
+
+Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)
+Switch Lumiere_Chambre_Parent_Lit    "Lit"       (gChambreParent, Lumieres)
+
+Switch Lumiere_Chambre_Enfant_Plafonnier    "Plafonnier"       (gChambreEnfant, Lumieres)
+Switch Lumiere_Chambre_Enfant_Lit1    "Lit 1"       (gChambreEnfant, Lumieres)
+Switch Lumiere_Chambre_Enfant_Lit2    "Lit 2"       (gChambreEnfant, Lumieres)
+
+Switch Lumiere_Sanitaire    "Plafonnier"       (gSanitaire, Lumieres)
+
+Switch Lumiere_Garage    "Plafonnier"       (gGarage, Lumieres)
+
+Switch Lumiere_Jardin_Portail    "Portail"       (gJardin, Lumieres)
+Switch Lumiere_Jardin_Chemin    "Chemin"       (gJardin, Lumieres)
+Switch Lumiere_Jardin_Porche   "Porche"       (gJardin, Lumieres)
+
+
+
+/* Heating */
+
+Switch Radiateur_Living  "Radiateur"      <radiateur>   (gLiving, Radiateurs)
+Switch Radiateur_Chambre_Parent "Radiateur"      <radiateur>   (gChambreParent, Radiateurs)
+Switch Radiateur_Chambre_Enfant "Radiateur"      <radiateur>   (gChambreEnfant, Radiateurs)
+
+
+/* Rollershutters */
+
+Rollershutter Shutter_GF_Toilet         "Toilet"        (GF_Toilet, Shutters)
+Rollershutter Shutter_GF_Kitchen        "Kitchen"       (GF_Kitchen, Shutters)
+Rollershutter Shutter_GF_Living         "Livingroom"    (GF_Living, Shutters)
+
+Rollershutter Shutter_FF_Bed            "Bedroom"       (FF_Bed, Shutters)
+Rollershutter Shutter_FF_Bath           "Bath"          (FF_Bath, Shutters)
+Rollershutter Shutter_FF_Office_Window  "Office Window" (FF_Office, Shutters)
+Rollershutter Shutter_FF_Office_Door    "Office Door"   (FF_Office, Shutters)
+
+Switch Shutter_all
+
+
+/* Indoor Temperatures */
+
+Number Temperature_GF_Corridor  "Temperature [%.1f °C]" <temperature>   (Temperature, GF_Corridor)
+Number Temperature_GF_Toilet    "Temperature [%.1f °C]" <temperature>   (Temperature, GF_Toilet)
+Number Temperature_GF_Living    "Temperature [%.1f °C]" <temperature>   (Temperature, GF_Living)
+Number Temperature_GF_Kitchen   "Temperature [%.1f °C]" <temperature>   (Temperature, GF_Kitchen)
+Number Temperature_FF_Bath      "Temperature [%.1f °C]" <temperature>   (Temperature, FF_Bath)
+Number Temperature_FF_Office    "Temperature [%.1f °C]" <temperature>   (Temperature, FF_Office)
+Number Temperature_FF_Child     "Temperature [%.1f °C]" <temperature>   (Temperature, FF_Child)
+Number Temperature_FF_Bed       "Temperature [%.1f °C]" <temperature>   (Temperature, FF_Bed)
+
+
+/* Windows */
+
+Contact Window_GF_Frontdoor     "Frontdoor [MAP(en.map):%s]"        (GF_Corridor, Windows)
+Contact Window_GF_Kitchen       "Kitchen [MAP(en.map):%s]"          (GF_Kitchen, Windows)
+Contact Window_GF_Living        "Terrace door [MAP(en.map):%s]"     (GF_Living, Windows)
+Contact Window_GF_Toilet        "Toilet [MAP(en.map):%s]"           (GF_Toilet, Windows)
+
+Contact Window_FF_Bath          "Bath [MAP(en.map):%s]"             (FF_Bath, Windows)
+Contact Window_FF_Bed           "Bedroom [MAP(en.map):%s]"          (FF_Bed, Windows)
+Contact Window_FF_Office_Window "Office Window [MAP(en.map):%s]"    (FF_Office, Windows)
+Contact Window_FF_Office_Door   "Balcony Door [MAP(en.map):%s]"     (FF_Office, Windows)
+
+Contact Garage_Door             "Garage Door [MAP(en.map):%s]"      (Garden, Windows)
+
+Group Weather_Chart
+Number Weather_Temperature      "Outside Temperature [%.1f °C]" <temperature> (Weather, Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
+Number Weather_Temp_Max         "Todays Maximum [%.1f °C]"      <temperature> (Weather, Weather_Chart)
+Number Weather_Temp_Min         "Todays Minimum [%.1f °C]"      <temperature> (Weather, Weather_Chart)
+Number Weather_Chart_Period     "Chart Period"
+DateTime Weather_LastUpdate     "Last Update [%1$ta %1$tR]"     <clock>
+Number Sun_Elevation            "Sun Elevation"                 <sun>       { channel = "astro:sun:home:position#elevation" }
+Number Sun_Azimuth              "Sun Azimuth"                   <sun>       { channel = "astro:sun:home:position#azimuth" }
+DateTime Sunrise_Time           "Sunrise [%1$tH:%1$tM]"         <sunrise>   { channel = "astro:sun:home:rise#start" }
+DateTime Sunset_Time            "Sunset [%1$tH:%1$tM]"          <sunset>    { channel = "astro:sun:home:set#start" }
+Number Moon_Elevation           "Moon Elevation"                <moon>      { channel = "astro:moon:home:position#elevation" }
+Number Moon_Azimuth             "Moon Azimuth"                  <moon>      { channel = "astro:moon:home:position#azimuth" }
+String Moon_Phase               "Moon Phase"                    <moon>      { channel = "astro:moon:home:phase#name" }
+
+
+/* Demo items */
+
+DateTime CurrentDate            "Date [%1$tA, %1$td.%1$tm.%1$tY]"   <calendar>  { channel="ntp:ntp:demo:dateTime" }
+Switch DemoSwitch               "Switch"
+Dimmer DimmedLight              "Dimmer [%d %%]"        <slider>
+Color  RGBLight                 "RGB Light"             <slider>
+Rollershutter DemoShutter       "Roller Shutter"
+Dimmer DemoBlinds               "Blinds [%d %%]"        <rollershutter>
+Number Scene_General            "Scene"                 <sofa>
+Number Radio_Station            "Radio"                 <network>
+Dimmer Volume                   "Volume [%.1f %%]"
+Number Temperature_Setpoint     "Temperature TEST [%.1f °C]" <temperature>  {mqtt="<[mosquitto:/temperature:state:default]"}
+Location DemoLocation           "Brandenburg Gate Berlin"
+Number Wifi_Level               "Wifi Level [%d/4]"     <signal>        (FF_Office)
+Number psu_temp "My Temp [%.1f %%]" <temperature> {mqtt="<[titi:openhab/home/test:state:default]"}
+
+
