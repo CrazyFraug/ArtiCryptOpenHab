@@ -1,0 +1,26 @@
+sitemap maison label="maison label"
+{
+    Frame label="Central Control System"
+    {
+       Text item=psu_temp
+       Text item=psu_tempB
+    }
+        Frame label="suite" {
+		Switch item=Switch1
+		Slider item=DimmedLight1 switchSupport
+	}
+	Frame label="demo part" {
+		Frame label="Binary Widgets" {
+			Switch item=DemoSwitch label="Toggle Switch"
+			Switch item=DemoSwitchButton label="Button Switch" mappings=[ON="On",OFF="Off"]
+		}
+		Frame label="Percent-based Widgets" {
+			Slider item=DimmedLight switchSupport
+		}
+	
+		Frame  {
+			Group item=FF_Bath label="Bathroom" icon="bath"
+		}
+	}
+}
+

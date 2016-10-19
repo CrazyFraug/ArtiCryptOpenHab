@@ -1,0 +1,14 @@
+Number psu_temp "PSU Temperature 189 [%.1f °C]" <temperature> {mqtt="<[local_mqtt:artilect/0/temp/0:state:default]"}
+Number psu_tempB "PSU Temperature B [%.1f °C]" <temperature> {mqtt="<[local_mqtt:artilect/0/temp/0:state:default]"}
+Switch Switch1                  "Switch"  {mqtt=">[local_mqtt:artilect/9/switch/0:command:ON:1],>[local_mqtt:artilect/9/switch/0:command:OFF:0]"}
+Dimmer DimmedLight1             "Dimmer [%d %%]"        <slider> {mqtt=">[local_mqtt:artilect/9/switch/1:command:ON:1],>[local_mqtt:artilect/9/switch/1:command:*:light ${itemName} was turned ${command}]"}
+Switch DemoSwitch               "Switch"  {mqtt=">[local_mqtt:artilect/19/switch/0:command:ON:1],>[local_mqtt:artilect/19/switch/0:command:OFF:0]"}
+Switch DemoSwitchButton         "Switch"  {mqtt=">[local_mqtt:artilect/19/switch/0:command:ON:1],>[local_mqtt:artilect/19/switch/0:command:OFF:0]"}
+Dimmer DimmedLight              "Dimmer [%d %%]"        <slider> {mqtt=">[local_mqtt:artilect/19/switch/1:command:ON:1],>[local_mqtt:artilect/9/switch/1:command:*:light ${itemName} was turned ${command}]"}
+Group FF_Bath       "Bathroom"      <bath>     
+Switch Light_FF_Bath_Ceiling        "Ceiling"       (FF_Bath, Lights)
+Switch Light_FF_Bath_Mirror         "Mirror"        (FF_Bath, Lights)
+Switch Heating_FF_Bath      "Bath"          <heating>   (FF_Bath, Heating)
+Rollershutter Shutter_FF_Bath           "Bath"          (FF_Bath, Shutters)
+Number Temperature_FF_Bath      "Temperature [%.1f °C]" <temperature>   (Temperature, FF_Bath)
+
