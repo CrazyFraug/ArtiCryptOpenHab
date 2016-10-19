@@ -1,12 +1,12 @@
-sitemap demo label="Main Menu"
+sitemap home label="Main Menu"
 {
 	Frame {
-		Group item=gLiving label="Living" icon="living"
-		Group item=gChambreParent label="Chambre parent" icon="chambre"
-		Group item=gChambreEnfant label="Chambre enfant" icon="chambre"
-		Group item=gSanitaire label="Sanitaire" icon="sanitaire"
+		Group item=gLiving label="Living" icon="video"
+		Group item=gChambreParent label="Chambre parent" icon="bedroom"
+		Group item=gChambreEnfant label="Chambre enfant" icon="boy_1"
+		Group item=gSanitaire label="Sanitaire" icon="bath"
 		Group item=gGarage label="Garage" icon="garage"
-		Group item=gJardin label="Jardin" icon="jardin"
+		Group item=gJardin label="Jardin" icon="garden"
 	}
 	Frame label="Weather" {
 		Text item=psu_temp  

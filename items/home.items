@@ -17,8 +17,8 @@ Group:Number:AVG                Temperature "Avg. Room Temperature [%.1f °C]"  
 Group:Contact:OR(OPEN, CLOSED)  Fenetres     "Open windows [(%d)]"               <contact>
 
 /* Lights */
-Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres) {mqtt="<[mosquitto:/lumieres/cuisine:command:ON]"}
-Switch Lumiere_Salon    "Salon"       (gLiving, Lumieres)
+Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres) {mqtt=">[local_mqtt:oh/living/lumiere/cuisine:command:ON:1],>[local_mqtt:oh/living/lumiere/cuisine:command:OFF:0]"}
+Dimmer Lumiere_Salon      "Salon [%d %%]"   <slider>  (gLiving, Lumieres)   {mqtt=">[local_mqtt:oh/living/lumiere/salon:command:*:${command}]"}
 Switch Lumiere_Coin_Repas    "Coin repas"       (gLiving, Lumieres)
 
 Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)
@@ -40,9 +40,9 @@ Switch Lumiere_Jardin_Porche   "Porche"       (gJardin, Lumieres)
 
 /* Heating */
 
-Switch Radiateur_Living  "Radiateur"      <radiateur>   (gLiving, Radiateurs)
-Switch Radiateur_Chambre_Parent "Radiateur"      <radiateur>   (gChambreParent, Radiateurs)
-Switch Radiateur_Chambre_Enfant "Radiateur"      <radiateur>   (gChambreEnfant, Radiateurs)
+Switch Radiateur_Living  "Radiateur"      <heating>   (gLiving, Radiateurs)
+Switch Radiateur_Chambre_Parent "Radiateur"      <heating>   (gChambreParent, Radiateurs)
+Switch Radiateur_Chambre_Enfant "Radiateur"      <heating>   (gChambreEnfant, Radiateurs)
 
 
 /* Rollershutters */
@@ -111,9 +111,9 @@ Dimmer DemoBlinds               "Blinds [%d %%]"        <rollershutter>
 Number Scene_General            "Scene"                 <sofa>
 Number Radio_Station            "Radio"                 <network>
 Dimmer Volume                   "Volume [%.1f %%]"
-Number Temperature_Setpoint     "Temperature TEST [%.1f °C]" <temperature>  {mqtt="<[mosquitto:/temperature:state:default]"}
+Number Temperature_Setpoint     "Temperature TEST [%.1f °C]" <temperature>  {mqtt="<[local_mqtt:py/weathertest/mytemp:state:default]"}
 Location DemoLocation           "Brandenburg Gate Berlin"
 Number Wifi_Level               "Wifi Level [%d/4]"     <signal>        (FF_Office)
-Number psu_temp "My Temp [%.1f %%]" <temperature> {mqtt="<[titi:openhab/home/test:state:default]"}
+Number psu_temp "My Temp [%.1f %%]" <temperature> {mqtt="<[local_mqtt:py/weathertest/temperaturetest:state:default]"}
 
 
