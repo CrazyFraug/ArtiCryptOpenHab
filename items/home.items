@@ -17,8 +17,8 @@ Group:Number:AVG                Temperature "Avg. Room Temperature [%.1f °C]"  
 Group:Contact:OR(OPEN, CLOSED)  Fenetres     "Open windows [(%d)]"               <contact>
 
 /* Lights */
-Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres) {mqtt=">[local_mqtt:oh/living/lumiere/cuisine:command:ON:1],>[local_mqtt:oh/living/lumiere/cuisine:command:OFF:0]"}
-Dimmer Lumiere_Salon      "Salon [%d %%]"   <slider>  (gLiving, Lumieres)   {mqtt=">[local_mqtt:oh/living/lumiere/salon:command:*:${command}]"}
+Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres) {mqtt=">[local_mqtt:/domotique/living/lumiere/cuisine/oh/switch:command:ON:on],>[local_mqtt:/domotique/living/lumiere/cuisine/oh/switch:command:OFF:off]"}
+Dimmer Lumiere_Salon      "Salon [%d %%]"   <slider>  (gLiving, Lumieres)   {mqtt=">[local_mqtt:/domotique/living/lumiereSalon/oh/onOff:command:100:on],>[local_mqtt:/domotique/living/lumiereSalon/oh/onOff:command:0:off],>[local_mqtt:/domotique/living/lumiereSalon/oh/slider:command:[1-99]:${command}]"}
 Switch Lumiere_Coin_Repas    "Coin repas"       (gLiving, Lumieres)
 
 Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)
@@ -31,6 +31,7 @@ Switch Lumiere_Chambre_Enfant_Lit2    "Lit 2"       (gChambreEnfant, Lumieres)
 Switch Lumiere_Sanitaire    "Plafonnier"       (gSanitaire, Lumieres)
 
 Switch Lumiere_Garage    "Plafonnier"       (gGarage, Lumieres)
+Switch Porte_Garage      "Porte"   <door>   (gGarage)  {mqtt=">[local_mqtt:/domotique/garage/porte/oh/switch:command:ON:ON],>[local_mqtt:/domotique/garage/porte/oh/switch:command:OFF:OFF],<[local_mqtt:/domotique/garage/porte/+/etat:state:default]"}
 
 Switch Lumiere_Jardin_Portail    "Portail"       (gJardin, Lumieres)
 Switch Lumiere_Jardin_Chemin    "Chemin"       (gJardin, Lumieres)
