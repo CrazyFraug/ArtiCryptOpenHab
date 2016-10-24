@@ -4,7 +4,7 @@ import paho.mqtt.client as mqtt
 import serial
 import time
  
-ser = serial.Serial('/dev/ttyUSB0', 9600)
+ser = serial.Serial('/dev/ttyUSB1', 9600)
 mqttc = mqtt.Client()
 mqttc.connect('localhost', port=1883, keepalive=60, bind_address="")
  

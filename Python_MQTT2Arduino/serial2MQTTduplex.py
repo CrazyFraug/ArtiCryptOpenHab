@@ -11,18 +11,26 @@ hostMQTT='localhost'
 
 clientId='myNameOfClient'
 
-myTopic1='oh/living/#'
+myTopic1='/domotique/garage/porte/'
+
 
 # serial msg to arduino begin  with  prefAT and end with endOfLine
 prefAT='AT+'
 endOfLine='\n'
+# arduino responds with those 2 kind of messages
+msg2mqtt='2mq'
+msg2py='2py'
 
 devSerial='/dev/ttyUSB1'   # serial port the arduino is connected to
 cmdSendValue='SendValue'
 
 sleepBetweenLoop=1    # sleep time (eg: 1s) to slow down loop
-topicPrefPy='py1/'
+topFromPy='py1/'
+topFromOH='oh/'
 
+# use to sort log messages
+def logp (msg, gravity='trace'):
+	print('['+gravity+']' + msg)
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
@@ -48,8 +56,30 @@ def on_message_myTopic1(client, userdata, msg):
 	cmd2arduino = prefAT + str(msg.payload)
 	ser.write(cmd2arduino)
 
+# read all available messages from arduino
+def readArduinoAvailableMsg(seri):
+	while seri.inWaiting():
+		# because of readline function, dont forget to open with timeout
+		response = seri.readline().replace('\n', '')
+		#logp ("answer is:" + response, 'debug')
+		tags = response.split(';')
+		if tags[0] == msg2mqtt:
+			# msg2mqtt: message to send to mqtt
+			# I dont analyse those messages, I transmit to mqtt
+			(topic, value) = tags[1].split(':')
+			pyTopic = myTopic1 + topFromPy + topic
+			# trace
+			print('{} = {}'.format(pyTopic, value))
+			mqttc.publish(pyTopic, value, retain=True)
+		elif tags[0] == msg2py:
+			# msg2py: message 2 python only
+			# python use this to check connection with arduino
+			print ('msg2py '+response)
+		else :
+			# I dont analyse, but I print
+			print ('[garbage from '+devSerial+'] '+response)
 
-ser = serial.Serial(devSerial, 57600, timeout=1)
+
 mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
 mqttc.on_message = on_message
 mqttc.on_connect = on_connect
@@ -58,23 +88,29 @@ mqttc.on_connect = on_connect
 cr = mqttc.connect(hostMQTT, port=1883, keepalive=60, bind_address="")
 mqttc.loop_start()
 
+# connection to arduino
+# I use 9600, because I had many pb with pyserial at 38400 !!!
+ser = serial.Serial(devSerial, baudrate=9600, timeout=0.2)
+logp (str(ser), 'info')
+# when we open serial to an arduino, this reset the board; it needs ~3s
+time.sleep(0.2)
 #I empty arduino serial buffer
-ser.write("s\n");
-time.sleep(1)
-ser.write("s\n");
+response = ser.readline()
+logp ("arduino buffer garbage: " + str(response), 'info')
+time.sleep(3)
 
+# loop to get connection to arduino
+
+
+# infinite loop
+# I regulary query a new measure value from arduino
+# then I publish it
 while True:
 	time.sleep(sleepBetweenLoop)
-	ser.write(prefAT + cmdSendValue + endOfLine)
-	print prefAT + cmdSendValue + endOfLine
-	response = ser.readline().replace(endOfLine, '')
-	print "answer is:" + response
-	tags = response.split(';')
-	if tags[0] == 'm2p':
-		(topic, value) = tags[1].split(':')
-		pyTopic = topicPrefPy + topic
-		# trace
-		print('{} = {}'.format(pyTopic, value))
-		mqttc.publish(pyTopic, value, retain=True)
+	cmd = (prefAT + cmdSendValue + endOfLine).encode('utf-8')
+	ser.write(cmd)
+	logp (cmd)
+	readArduinoAvailableMsg(ser)
+
 
 
