@@ -14,12 +14,13 @@ clientId='myNameOfClient'
 myTopic1='/domotique/garage/porte/'
 
 
-# serial msg to arduino begin  with  prefAT and end with endOfLine
+# serial msg to arduino begin  with  prefAT / prefDO and end with endOfLine
 prefAT='AT+'
+prefDO='DO+'
 endOfLine='\n'
 # arduino responds with those 2 kind of messages
-msg2mqtt='2mq'
 msg2py='2py'
+msg2mqtt='2mq'
 
 devSerial='/dev/ttyUSB1'   # serial port the arduino is connected to
 cmdSendValue='SendValue'
@@ -107,7 +108,7 @@ time.sleep(3)
 # then I publish it
 while True:
 	time.sleep(sleepBetweenLoop)
-	cmd = (prefAT + cmdSendValue + endOfLine).encode('utf-8')
+	cmd = (prefDO + cmdSendValue + endOfLine).encode('utf-8')
 	ser.write(cmd)
 	logp (cmd)
 	readArduinoAvailableMsg(ser)
