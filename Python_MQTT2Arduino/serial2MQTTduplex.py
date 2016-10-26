@@ -48,7 +48,6 @@ def reOpenLogfile(logfileName):
 	global logStartTime, logfile
 	#
 	if logfileName != '' :
-		print('I try and open logfile:' + logfileName)
 		try:
 			# I close file if needed
 			if ( not logfile.closed) and (logfile.name != '<stdout>') :
@@ -67,29 +66,35 @@ def reOpenLogfile(logfileName):
 
 def read_args(argv):
 	# optional args have default values above
-	global logfile, namePy, myTopic1, myTopic2
+	global logfile, hostMQTT, namePy, myTopic1, myTopic2, devSerial
 	logfileName = ''
 	try:
-		opts, args = getopt.getopt(argv,"hl:n:t:u:",["logfile=","namepy=","mytopic1=","mytopic2="])
+		opts, args = getopt.getopt(argv,"hl:b:n:t:u:d:",["logfile=","broker=","namepy=","mytopic1=","mytopic2=","devserial="])
 	except getopt.GetoptError:
-		print ('/serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2>')
+		print ('serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2> -d <devserial>')
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
-			print ('/serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2>')
+			print ('serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2> -d <devserial>')
 			sys.exit()
 		elif opt in ("-l", "--logfile"):
 			logfileName = arg
+		elif opt in ("-b", "--broker"):
+			hostMQTT = arg
 		elif opt in ("-n", "--namepy"):
 			namepy = arg
 		elif opt in ("-t", "--mytopic1"):
 			myTopic1 = arg
 		elif opt in ("-u", "--mytopic2"):
 			myTopic2 = arg
+		elif opt in ("-d", "--devserial"):
+			devSerial = arg
 	logp('logfile is '+ logfileName, 'debug')
+	logp('broker is '+ hostMQTT, 'debug')
 	logp('namepy is '+ namePy, 'debug')
 	logp('mytopic1 is '+ myTopic1, 'debug')
 	logp('mytopic2 is '+ myTopic2, 'debug')
+	logp('devserial is '+ devSerial, 'debug')
 	# I try to open logfile
 	if logfileName != '' :
 		reOpenLogfile(logfileName)
@@ -105,7 +110,7 @@ if __name__ == "__main__":
 def checkLogfileSize(logfile):
 	global logStartTime
 	if (time.time() - logStartTime) > 30:
-		print('reOpenLogfile of name:' + logfile.name)
+		#print('reOpenLogfile of name:' + logfile.name)
 		reOpenLogfile(logfile.name)
 
 
