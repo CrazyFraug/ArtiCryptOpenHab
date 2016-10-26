@@ -1,9 +1,11 @@
 #!/usr/bin/python
- 
+
+from __future__ import print_function
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import serial
 import time
+import sys, getopt
 
 # IP address of MQTT broker
 hostMQTT='localhost'
@@ -11,7 +13,11 @@ hostMQTT='localhost'
 
 clientId='myNameOfClient'
 
-myTopic1='/domotique/garage/porte/'
+logfile=sys.stdout
+logStartTime=0.
+
+myTopic1='/domotique/garage/topictest/'
+myTopic2='/domotique/garage/topictest2/'
 
 devSerial='/dev/ttyUSB1'   # serial port the arduino is connected to
 cmdSendValue='SendValue'
@@ -26,13 +32,82 @@ msg2py='2py'
 msg2mqtt='2mq'
 
 sleepBetweenLoop=1    # sleep time (eg: 1s) to slow down loop
-topFromPy='py1/'
+namePy='py0'
+topFromPy= namePy + '/'
 topFromOH='oh/'
 topFromSys='sys/'
 
+
 # use to sort log messages
 def logp (msg, gravity='trace'):
-	print('['+gravity+']' + msg)
+	print('['+gravity+']' + msg, file=logfile)
+
+# log file must not grow big
+# I need to overwrite it often
+def reOpenLogfile(logfileName):
+	global logStartTime, logfile
+	#
+	if logfileName != '' :
+		print('I try and open logfile:' + logfileName)
+		try:
+			# I close file if needed
+			if ( not logfile.closed) and (logfile.name != '<stdout>') :
+				logfile.close()
+			# file will be overwritten
+			if (logfileName != '<stdout>') :
+				logfile = open(logfileName, "w", 1)
+			logStartTime = time.time()
+			logp('logStartTime:' + time.asctime(time.localtime(time.time())), 'info')
+		except IOError:
+			print('[error] could not open logfile:' + logfileName)
+			sys.exit(3)
+	else :
+		print('I cant re open logfile. name is empty')
+
+
+def read_args(argv):
+	# optional args have default values above
+	global logfile, namePy, myTopic1, myTopic2
+	logfileName = ''
+	try:
+		opts, args = getopt.getopt(argv,"hl:n:t:u:",["logfile=","namepy=","mytopic1=","mytopic2="])
+	except getopt.GetoptError:
+		print ('/serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2>')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '-h':
+			print ('/serial2MQTTduplex.py -l <logfile> -n <namepy> -t <mytopic1> -u <mytopic2>')
+			sys.exit()
+		elif opt in ("-l", "--logfile"):
+			logfileName = arg
+		elif opt in ("-n", "--namepy"):
+			namepy = arg
+		elif opt in ("-t", "--mytopic1"):
+			myTopic1 = arg
+		elif opt in ("-u", "--mytopic2"):
+			myTopic2 = arg
+	logp('logfile is '+ logfileName, 'debug')
+	logp('namepy is '+ namePy, 'debug')
+	logp('mytopic1 is '+ myTopic1, 'debug')
+	logp('mytopic2 is '+ myTopic2, 'debug')
+	# I try to open logfile
+	if logfileName != '' :
+		reOpenLogfile(logfileName)
+
+
+logStartTime = time.time()
+if __name__ == "__main__":
+	read_args(sys.argv[1:])
+
+
+# if logfile is old, we remove it and overwrite it
+#   because it must not grow big !
+def checkLogfileSize(logfile):
+	global logStartTime
+	if (time.time() - logStartTime) > 30:
+		print('reOpenLogfile of name:' + logfile.name)
+		reOpenLogfile(logfile.name)
+
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
@@ -48,14 +123,14 @@ def on_connect(client, userdata, rc):
 # usually we dont go to  on_message
 #  because we go to a specific callback that we have defined for each topic
 def on_message(client, userdata, msg):
-	print(msg.topic+" "+str(msg.payload))
+	logp('msg:' +msg.topic+" : "+str(msg.payload), 'info')
 	cmd2arduino = prefAT + str(msg.payload) + endOfLine
 	ser.write(cmd2arduino)
 
 # The callback for when a PUBLISH message is received from the server.
 # usually  we go to a specific callback that we have defined for each topic
 def on_message_myTopicOH(client, userdata, msg):
-	print("spec callbackOH,"+msg.topic+":"+str(msg.payload))
+	logp("myTopicOH:"+msg.topic+" : "+str(msg.payload), 'info')
 	cmd = msg.topic.replace(myTopic1, '').replace(topFromOH, '').replace('#','')
 	cmd2arduino = prefDO + cmd + ':' + str(msg.payload)+ endOfLine
 	ser.write(cmd2arduino)
@@ -81,15 +156,16 @@ def readArduinoAvailableMsg(seri):
 			(topic, value) = tags[1].split(':')
 			pyTopic = myTopic1 + topFromPy + topic
 			# trace
-			print('{} = {}'.format(pyTopic, value))
+			logp('{} = {}'.format(pyTopic, value), 'to MQTT')
 			mqttc.publish(pyTopic, value, retain=True)
 		elif tags[0] == msg2py:
 			# msg2py: message 2 python only
 			# python use this to check connection with arduino
-			print ('msg2py '+response)
+			logp ('msg2py '+response, 'info')
 		else :
 			# I dont analyse, but I print
-			print ('[garbage from '+devSerial+'] '+response)
+			logp (response, 'unknown from '+devSerial)
+
 
 
 mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
@@ -123,6 +199,8 @@ while True:
 	ser.write(cmd)
 	logp (cmd)
 	readArduinoAvailableMsg(ser)
+	#check size
+	checkLogfileSize(logfile)
 
 
 
