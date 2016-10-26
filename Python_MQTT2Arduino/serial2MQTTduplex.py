@@ -13,6 +13,9 @@ clientId='myNameOfClient'
 
 myTopic1='/domotique/garage/porte/'
 
+devSerial='/dev/ttyUSB1'   # serial port the arduino is connected to
+cmdSendValue='SendValue'
+
 
 # serial msg to arduino begin  with  prefAT / prefDO and end with endOfLine
 prefAT='AT+'
@@ -22,12 +25,10 @@ endOfLine='\n'
 msg2py='2py'
 msg2mqtt='2mq'
 
-devSerial='/dev/ttyUSB1'   # serial port the arduino is connected to
-cmdSendValue='SendValue'
-
 sleepBetweenLoop=1    # sleep time (eg: 1s) to slow down loop
 topFromPy='py1/'
 topFromOH='oh/'
+topFromSys='sys/'
 
 # use to sort log messages
 def logp (msg, gravity='trace'):
@@ -38,23 +39,33 @@ def on_connect(client, userdata, rc):
 	print("Connected with result code "+str(rc))
 	# Subscribing in on_connect() means that if we lose the connection and
 	# reconnect then subscriptions will be renewed.
-	mqttc.subscribe(myTopic1)
-	mqttc.message_callback_add(myTopic1, on_message_myTopic1)
+	mqttc.subscribe(myTopic1+ topFromOH +'#')
+	mqttc.message_callback_add(myTopic1+ topFromOH+ '#', on_message_myTopicOH)
+	mqttc.subscribe(myTopic1+ topFromSys +'#')
+	mqttc.message_callback_add(myTopic1+ topFromSys+ '#', on_message_myTopicSys)
 
 # The callback for when a PUBLISH message is received from the server.
 # usually we dont go to  on_message
 #  because we go to a specific callback that we have defined for each topic
 def on_message(client, userdata, msg):
 	print(msg.topic+" "+str(msg.payload))
-	cmd2arduino = prefAT + str(msg.payload)
+	cmd2arduino = prefAT + str(msg.payload) + endOfLine
 	ser.write(cmd2arduino)
 
 # The callback for when a PUBLISH message is received from the server.
-# usually we dont go to  on_message
-#  because we go to a specific callback that we have defined for each topic
-def on_message_myTopic1(client, userdata, msg):
-	print("spec callback1,"+msg.topic+" "+str(msg.payload))
-	cmd2arduino = prefAT + str(msg.payload)
+# usually  we go to a specific callback that we have defined for each topic
+def on_message_myTopicOH(client, userdata, msg):
+	print("spec callbackOH,"+msg.topic+":"+str(msg.payload))
+	cmd = msg.topic.replace(myTopic1, '').replace(topFromOH, '').replace('#','')
+	cmd2arduino = prefDO + cmd + ':' + str(msg.payload)+ endOfLine
+	ser.write(cmd2arduino)
+
+# The callback for when a PUBLISH message is received from the server.
+# usually  we go to a specific callback that we have defined for each topic
+def on_message_myTopicSys(client, userdata, msg):
+	print("spec callbackSys,"+msg.topic+":"+str(msg.payload))
+	cmd = msg.topic.replace(myTopic1, '').replace(topFromSys, '').replace('#','')
+	cmd2arduino = prefAT + cmd + ':' + str(msg.payload)+ endOfLine
 	ser.write(cmd2arduino)
 
 # read all available messages from arduino

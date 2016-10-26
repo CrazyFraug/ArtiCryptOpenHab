@@ -2,11 +2,18 @@
 #define LOG_DEBUG(str)   Serial.println(str)
 #define LOG_ERROR(str)   Serial.println(str)
 
-#define PIN_CAPTOR
+struct stListPin { int numPin; char *namePin; 
+       stListPin(int n, char *np) : numPin(n), namePin(np) {}
+};
+
+#define PIN_CAPTOR  10
 #define PIN_LED 13
- 
-#define BLINK_DELAY 1000
- 
+stListPin listPin[] = {
+  stListPin(PIN_LED, "LED"),
+  stListPin(PIN_CAPTOR, "CAPTOR unknown")
+};
+int listPinSize = sizeof(listPin) / sizeof(stListPin);
+
 String inputMessage = "";
 boolean inputMessageReceived = false;
 String msg2pyStart = "2py;";
@@ -21,16 +28,17 @@ struct Commande {
   Commande(String cn, int (*cf)(String) ): cmdName(cn), cmdFunction(cf) {}
 };
 
-// list of available commandes that the arduino will accept
+// list of available commandes (user) that the arduino will accept
 int sendMessageStatus(String dumb);
 int ledBlinkTime(String dumb);
 int blinkTime=1000;
 
-// list of available commandes that the arduino will accept
+// list of available commandes (system ctrl) that the arduino will accept
 int sendSketchId(String dumb);
 int sendSketchBuild(String dumb);
-int sendListCmdDO(String dumb);
 int sendListCmdAT(String dumb);
+int sendListCmdDO(String dumb);
+int sendListPin(String dumb);
 int cmdPinMode(String dumb);
 int cmdPinRead(String dumb);
 int cmdPinWrite(String dumb);
@@ -47,7 +55,9 @@ int cmdosSize = sizeof(cmdos) / sizeof(Commande);
 Commande cmds[] = {
   Commande("idSketch",  &sendSketchId),
   Commande("idBuild",   &sendSketchBuild),
+  Commande("listCmdAT", &sendListCmdAT),
   Commande("listCmdDO", &sendListCmdDO),
+  Commande("listPin",   &sendListPin),
   Commande("pinMode",   &cmdPinMode),
   Commande("pinRead",   &cmdPinRead),
   Commande("pinWrite",  &cmdPinWrite)
@@ -117,7 +127,7 @@ void checkMessageReceived()
           }
         }
         if (cmdoNotFound)  {
-          LOG_ERROR(String("DO cmd not recognized ! :") + command);
+          LOG_ERROR(String(F("DO cmd not recognized ! :")) + command);
         }
       }
       // if it is a cmd for system ctrl
@@ -133,10 +143,17 @@ void checkMessageReceived()
           {
               cmdNotFound = false;
               int cr = cmds[i].cmdFunction(command);
+              if (cr != 0)   {
+                // I send pb msg
+                String msg2py = msg2pyStart + cmds[i].cmdName + "/KO:" 
+                               + cr + msg2pyEnd;
+                Serial.print(msg2py);                
+              }
+              // if cr=0  I dont send OK msg, this is specific to function
           }
         }
         if (cmdNotFound)  {
-          LOG_ERROR(String("AT cmd not recognized ! :") + command);
+          LOG_ERROR(String(F("AT cmd not recognized ! :")) + command);
         }
       }
       else   {
@@ -225,6 +242,20 @@ int sendListCmdDO(String dumb)
     return 0;
 }
 
+// send the list of Pin definition
+int sendListPin(String dumb)
+{
+    String availPin = "";
+    if (listPinSize >= 0)
+       availPin = availPin + listPin[0].numPin +" "+ listPin[0].namePin;
+    for (int i=1; i<listPinSize; i++)
+       availPin = availPin + "," + listPin[i].numPin +" "+ listPin[i].namePin;
+    
+    String msg2py = msg2pyStart + "/listPin" + ":" + availPin + msg2pyEnd;
+    Serial.print(msg2py);
+    return 0;
+}
+
 // 
 int ledBlinkTime(String sCmdAndBlinkTime)
 {
@@ -232,7 +263,7 @@ int ledBlinkTime(String sCmdAndBlinkTime)
     // value must exist
     int ind = sCmdAndBlinkTime.indexOf(":");
     if (ind < 0)   {
-      LOG_ERROR("ledBlinkTime cmd needs 1 value");
+      LOG_ERROR(F("ledBlinkTime cmd needs 1 value"));
       String msg2py = msg2pyStart + "/ledBlinkTimeKO" + msg2pyEnd;
       Serial.print(msg2py);
       return 1;
@@ -244,25 +275,25 @@ int ledBlinkTime(String sCmdAndBlinkTime)
     int iValue = sValue.toInt();
     // toInt will return 0, if it is not an int
     if ( (iValue == 0) && ( ! sValue.equals("0")) )   {
-      LOG_ERROR("ledBlinkTime: value must be 1 integer");
+      LOG_ERROR(F("ledBlinkTime: value must be 1 integer"));
       String msg2py = msg2pyStart + "/ledBlinkTimeKO" + msg2pyEnd;
       Serial.print(msg2py);
       return 2;
     }
     else if (iValue < 0)   {
-      LOG_ERROR("ledBlinkTime: value must be integer > 0");
+      LOG_ERROR(F("ledBlinkTime: value must be integer > 0"));
       String msg2py = msg2pyStart + "/ledBlinkTimeKO" + msg2pyEnd;
       Serial.print(msg2py);
       return 3;
     }
 
-
     blinkTime = iValue;
     
     // I send back OK msg
-    String msg2py = msg2pyStart + "/ledBlinkTimeOK" + ":" + blinkTime 
+    String msg2py = msg2pyStart + "/ledBlinkTime/OK" + ":" + blinkTime 
                    + msg2pyEnd;
     Serial.print(msg2py);
+    
     return 0;
 }
 
@@ -279,13 +310,42 @@ void blinkLed() {
   }
 }
 
-int cmdPinMode(String dumb) {
+int cmdPinMode(String pin_mode) {
+    // pin_mode contains cmd and value with this format cmd:value
+    // value must exist
+    int ind = pin_mode.indexOf(":");
+    if (ind < 0)   {
+      LOG_ERROR(F("pinMode cmd needs 2 values"));
+      return 1;
+    }
+    
+    // we get 2nd value 
+    String sValue = pin_mode.substring(ind+1);
+    ind = pin_mode.indexOf(",");
+    if (ind < 0)   {
+      LOG_ERROR(F("pinMode cmd needs 2 values"));
+      return 2;
+    }
+    
+    String sValue2 = pin_mode.substring(ind+1);
+    // value must be an int
+    int iValue = sValue.toInt();
+    // toInt will return 0, if it is not an int
+    if ( (iValue == 0) && ( ! sValue.equals("0")) )   {
+      LOG_ERROR(F("ledBlinkTime: value must be 1 integer"));
+      return 2;
+    }
+    else if (iValue < 0)   {
+      LOG_ERROR(F("ledBlinkTime: value must be integer > 0"));
+      return 3;
+    }
+
+    return 0;
+}
+int cmdPinRead(String pin_digitAnalog) {
   ;
 }
-int cmdPinRead(String dumb) {
-  ;
-}
-int cmdPinWrite(String dumb) {
+int cmdPinWrite(String pin_digitAnalog_val) {
   ;
 }
 
@@ -310,7 +370,7 @@ int  checkNoStuckMessageInBuffer() {
   if (( ! inputMessageReceived ) && (msgHasBegun)) {
     if ( (millis() - lastPrint > 1000) && 
          inputMessage.length()>0 ) {
-      Serial.println(String("msg incomplete:") + inputMessage + F(":end"));
+      Serial.println(String(F("msg incomplete:")) + inputMessage + F(":end"));
       lastPrint = millis();
       return 1;
     }
