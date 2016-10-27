@@ -7,7 +7,7 @@ struct stListPin { int numPin; char *namePin;
 };
 
 #define PIN_CAPTOR  10
-#define PIN_LED 13
+#define PIN_LED 2
 stListPin listPin[] = {
   stListPin(PIN_LED, "LED"),
   stListPin(PIN_CAPTOR, "CAPTOR unknown")
@@ -46,10 +46,10 @@ int cmdPinWrite(const String& dumb);
 
 // list of available commands (user) that the arduino will accept
 Commande cmdos[] = {
-  Commande("SendValue",     &sendMessageStatus),
-  Commande("S",             &sendMessageStatus),
-  Commande("ledBlink",      &ledBlinkTime),
-  Commande("lit1/switch",   &switchLed)
+  Commande("SendValue", &sendMessageStatus),
+  Commande("s",         &sendMessageStatus),
+  Commande("ledBlink",  &ledBlinkTime),
+  Commande("lit1/switch",    &switchLed)
 };
 int cmdosSize = sizeof(cmdos) / sizeof(Commande);
 
@@ -66,10 +66,6 @@ Commande cmds[] = {
 };
 int cmdsSize = sizeof(cmds) / sizeof(Commande);
 
-
-/*---------------------------------------------------------------*/
-/*                setup and loop function                        */
-/*---------------------------------------------------------------*/
 
 void setup()
 {
@@ -122,23 +118,18 @@ void checkMessageReceived()
       {
         LOG_DEBUG(F("Message is a DO cmd, I am parsing..."));
         
-        // command and value (separated with : )
-        String command_val = inputMessage.substring(prefDO.length());
-        String command = command_val;
-        // We cut the value part, if it exists
-        if (command_val.indexOf(":") >= 0)
-          command = command_val.substring(0, command_val.indexOf(":"));
+        String command = inputMessage.substring(prefDO.length());
         bool cmdoNotFound = true;
         for (int i=0; i<cmdosSize; i++)
         {
-          if (command.equals(cmdos[i].cmdName))
+          if (command.startsWith(cmdos[i].cmdName))
           {
               cmdoNotFound = false;
-              int cr = cmdos[i].cmdFunction(command_val);
+              int cr = cmdos[i].cmdFunction(command);
           }
         }
         if (cmdoNotFound)  {
-          LOG_ERROR(String(F("DO cmd not recognized ! :")) + command_val);
+          LOG_ERROR(String(F("DO cmd not recognized ! :")) + command);
         }
       }
       // if it is a cmd for system ctrl
@@ -146,19 +137,14 @@ void checkMessageReceived()
       {
         LOG_DEBUG(F("Message is a AT cmd, I am parsing..."));
         
-        // command and value (separated with : )
-        String command_val = inputMessage.substring(prefAT.length());
-        String command = command_val;
-        // We cut the value part, if it exists
-        if (command_val.indexOf(":") >= 0)
-          command = command_val.substring(0, command_val.indexOf(":"));
+        String command = inputMessage.substring(prefAT.length());
         bool cmdNotFound = true;
         for (int i=0; i<cmdsSize; i++)
         {
-          if (command.equals(cmds[i].cmdName))
+          if (command.startsWith(cmds[i].cmdName))
           {
               cmdNotFound = false;
-              int cr = cmds[i].cmdFunction(command_val);
+              int cr = cmds[i].cmdFunction(command);
               if (cr != 0)   {
                 // I send pb msg
                 String msg2py = msg2pyStart + cmds[i].cmdName + "/KO:" 
@@ -169,7 +155,7 @@ void checkMessageReceived()
           }
         }
         if (cmdNotFound)  {
-          LOG_ERROR(String(F("AT cmd not recognized ! :")) + command_val);
+          LOG_ERROR(String(F("AT cmd not recognized ! :")) + command);
         }
       }
       else   {
