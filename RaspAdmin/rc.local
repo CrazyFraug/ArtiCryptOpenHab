@@ -20,4 +20,10 @@ fi
 echo ds3231 0x68 > /sys/class/i2c-adapter/i2c-1/new_device
 sudo hwclock -s
 
+sudo mount -t tmpfs -o size=2m,uid=119,gid=119 tmpfs /media/ramdisk/openhab
+sudo -u openhab mkdir /media/ramdisk/openhab/logPython
+sudo -u openhab chmod g+w /media/ramdisk/openhab/logPython
+
+sudo -u openhab python Python_MQTT2Arduino/watchConnectPython2Arduino.py
+
 exit 0
