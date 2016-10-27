@@ -24,9 +24,8 @@ Switch Lumiere_Coin_Repas    "Coin repas"       (gLiving, Lumieres)
 Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)
 Switch Lumiere_Chambre_Parent_Lit    "Lit"       (gChambreParent, Lumieres)
 
-Switch Lumiere_Chambre_Enfant_Plafonnier    "Plafonnier"       (gChambreEnfant, Lumieres)
-Switch Lumiere_Chambre_Enfant_Lit1    "Lit 1"       (gChambreEnfant, Lumieres)
-Switch Lumiere_Chambre_Enfant_Lit2    "Lit 2"       (gChambreEnfant, Lumieres)
+Switch Lumiere_Chambre_Enfant_Lit1    "Lit 1"       (gChambreEnfant, Lumieres)  {mqtt=">[local_mqtt:/domotique/enfant/oh/lit1/switch:command:ON:ON],>[local_mqtt:/domotique/enfant/oh/lit1/switch:command:OFF:OFF],<[local_mqtt:/domotique/enfant/oh/lit1/etat:state:default]"}
+Switch Lumiere_Chambre_Enfant_Lit2    "Lit 2"       (gChambreEnfant, Lumieres)  {mqtt=">[local_mqtt:/domotique/enfant/oh/lit2/switch:command:ON:ON],>[local_mqtt:/domotique/enfant/oh/lit2/switch:command:OFF:OFF],<[local_mqtt:/domotique/enfant/oh/lit2/etat:state:default]"}
 
 Switch Lumiere_Sanitaire    "Plafonnier"       (gSanitaire, Lumieres)
 
@@ -43,7 +42,7 @@ Switch Lumiere_Jardin_Porche   "Porche"       (gJardin, Lumieres)
 
 Switch Radiateur_Living  "Radiateur"      <heating>   (gLiving, Radiateurs)
 Switch Radiateur_Chambre_Parent "Radiateur"      <heating>   (gChambreParent, Radiateurs)
-Switch Radiateur_Chambre_Enfant "Radiateur"      <heating>   (gChambreEnfant, Radiateurs)
+Switch Radiateur_Chambre_Enfant "Radiateur"      <heating>   (gChambreEnfant, Radiateurs)  {mqtt=">[local_mqtt:/domotique/enfant/oh/radiateur/switch:command:ON:ON],>[local_mqtt:/domotique/enfant/oh/radiateur/switch:command:OFF:OFF],<[local_mqtt:/domotique/enfant/oh/radiateur/etat:state:default]"}
 
 
 /* Rollershutters */
