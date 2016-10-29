@@ -172,15 +172,6 @@ def readArduinoAvailableMsg(seri):
 			logp (response, 'unknown from '+devSerial)
 
 
-
-mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
-mqttc.on_message = on_message
-mqttc.on_connect = on_connect
-
-#mqttc.connect('iot.eclipse.org', port=1883, keepalive=60, bind_address="")
-cr = mqttc.connect(hostMQTT, port=1883, keepalive=60, bind_address="")
-mqttc.loop_start()
-
 # connection to arduino
 # I use 9600, because I had many pb with pyserial at 38400 !!!
 ser = serial.Serial(devSerial, baudrate=9600, timeout=0.2)
@@ -193,6 +184,15 @@ logp ("arduino buffer garbage: " + str(response), 'info')
 time.sleep(3)
 
 # loop to get connection to arduino
+
+# connection to mosquitto
+mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
+mqttc.on_message = on_message
+mqttc.on_connect = on_connect
+
+#mqttc.connect('iot.eclipse.org', port=1883, keepalive=60, bind_address="")
+cr = mqttc.connect(hostMQTT, port=1883, keepalive=60, bind_address="")
+mqttc.loop_start()
 
 
 # infinite loop
