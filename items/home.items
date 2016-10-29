@@ -21,8 +21,8 @@ Switch Lumiere_Cuisine    "Cuisine [%s]"       (gLiving, Lumieres)   {mqtt=">[lo
 Dimmer Lumiere_Salon      "Salon [%d %%]"   <slider>  (gLiving, Lumieres)   {mqtt=">[local_mqtt:/domotique/living/oh/lumiere/dimmer:command:*:${command}],<[local_mqtt:/domotique/living/+/lumiere/etat:state:default]"}
 Switch Lumiere_Coin_Repas    "Coin repas"       (gLiving, Lumieres)  {mqtt=">[local_mqtt:/domotique/living/oh/repas/switch:command:*:default],<[local_mqtt:/domotique/living/+/repas/etat:state:default]"}
 
-Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)  {mqtt=">[local_mqtt:/domotique/parent/oh/plafonnier/switch:command:ON:ON],>[local_mqtt:/domotique/parent/oh/plafonnier/switch:command:OFF:OFF],<[local_mqtt:/domotique/parent/+/plafonnier/etat:state:default]"}
-Switch Lumiere_Chambre_Parent_Lit    "Lit"       (gChambreParent, Lumieres)  {mqtt=">[local_mqtt:/domotique/parent/oh/lit/switch:command:*:default],>[local_mqtt:/domotique/parent/oh/lit/switch:command:OFF:OFF],<[local_mqtt:/domotique/parent/+/lit/etat:state:default]"}
+Switch Lumiere_Chambre_Parent_Plafonnier    "Plafonnier"       (gChambreParent, Lumieres)  {mqtt=">[local_mqtt:/domotique/parent/oh/plafonnier/switch:command:*:default],<[local_mqtt:/domotique/parent/+/plafonnier/etat:state:default]"}
+Switch Lumiere_Chambre_Parent_Lit    "Lit"       (gChambreParent, Lumieres)  {mqtt=">[local_mqtt:/domotique/parent/oh/lit/switch:command:*:default],<[local_mqtt:/domotique/parent/+/lit/etat:state:default]"}
 
 Switch Lumiere_Chambre_Enfant_Lit1    "Lit 1"       (gChambreEnfant, Lumieres)  {mqtt=">[local_mqtt:/domotique/enfant/oh/lit1/switch:command:*:default],<[local_mqtt:/domotique/enfant/+/lit1/etat:state:default]"}
 Switch Lumiere_Chambre_Enfant_Lit2    "Lit 2"       (gChambreEnfant, Lumieres)  {mqtt=">[local_mqtt:/domotique/enfant/oh/lit2/switch:command:*:default],<[local_mqtt:/domotique/enfant/+/lit2/etat:state:default]"}

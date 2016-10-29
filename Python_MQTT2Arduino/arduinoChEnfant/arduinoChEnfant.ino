@@ -4,12 +4,12 @@
 #include "msgFromMQTT.h"
 
 
-#define PIN_LED2      2
-#define PIN_LED11     11
-#define PIN_LED_HEAT  5
+#define PIN_LED_A     3
+#define PIN_LED_B     5
+#define PIN_LED_HEAT  6
 stListPin listPin[] = {
-  stListPin(PIN_LED11,  "lumiere1"),
-  stListPin(PIN_LED2,   "lumiere2"),
+  stListPin(PIN_LED_A,   "lumiere1"),
+  stListPin(PIN_LED_B,   "lumiere2"),
   stListPin(PIN_LED_HEAT, "LED heater")
 };
 int listPinSize = sizeof(listPin) / sizeof(stListPin);
@@ -25,9 +25,9 @@ int ledHeater(const String& dumb);
 
 // list of available commands (user) that the arduino will accept
 Commande cmdos[] = {
-  Commande("radiateur/switch",  &ledHeater),
-  Commande("lit1/switch",       &switchLed1),
-  Commande("lit2/switch",       &switchLed2)
+  Commande("radiateur/switch",   &ledHeater),
+  Commande("lit1/switch",        &switchLed1),
+  Commande("lit2/switch",        &switchLed2)
 };
 int cmdosSize = sizeof(cmdos) / sizeof(Commande);
 
@@ -51,8 +51,8 @@ int cmdsSize = sizeof(cmds) / sizeof(Commande);
 
 void setup()
 {
-    pinMode(PIN_LED2, OUTPUT);
-    pinMode(PIN_LED11, OUTPUT);
+    pinMode(PIN_LED_A, OUTPUT);
+    pinMode(PIN_LED_B, OUTPUT);
     pinMode(PIN_LED_HEAT, OUTPUT);
     
     Serial.begin(9600);
@@ -61,6 +61,7 @@ void setup()
     // I send identification of sketch
     sendSketchId("");
     sendSketchBuild("");
+    sendListPin("");
 }
  
 void loop()
@@ -116,7 +117,7 @@ int switchLed1(const String& sOnOff)
     String sValue = sOnOff.substring(ind+1);
     // value must be  ON  or  OFF
     if ( ( ! sValue.equals("ON")) && ( ! sValue.equals("OFF")) )   {
-      LOG_ERROR(F("switchLed: value must be ON or OFF"));
+      LOG_ERROR(command+ F(": value must be ON or OFF"));
       String msg2py = msg2pyStart + command + F("/KO") + msg2pyEnd;
       Serial.print(msg2py);
       return 2;
@@ -125,13 +126,13 @@ int switchLed1(const String& sOnOff)
     int iValue=0;
     // converts ON / OFF  to  1 / 0
     if (sValue.equals("ON"))
-      iValue = 1;
+      iValue = 50;
     else if (sValue.equals("OFF"))
       iValue = 0;
     else
       Serial.println ("jamais de la vie");
    
-    digitalWrite(PIN_LED11, iValue);
+    analogWrite(PIN_LED_A, iValue);
     
     // I send back OK msg
     String msg2py = msg2mqttStart + command + F("/OK:") + sValue + msg2pyEnd;
@@ -162,7 +163,7 @@ int switchLed2(const String& sOnOff)
     String sValue = sOnOff.substring(ind+1);
     // value must be  ON  or  OFF
     if ( ( ! sValue.equals("ON")) && ( ! sValue.equals("OFF")) )   {
-      LOG_ERROR(F("switchLed: value must be ON or OFF"));
+      LOG_ERROR(command+ F(": value must be ON or OFF"));
       String msg2py = msg2pyStart + command + F("/KO") + msg2pyEnd;
       Serial.print(msg2py);
       return 2;
@@ -171,13 +172,13 @@ int switchLed2(const String& sOnOff)
     int iValue=0;
     // converts ON / OFF  to  1 / 0
     if (sValue.equals("ON"))
-      iValue = 1;
+      iValue = 50;
     else if (sValue.equals("OFF"))
       iValue = 0;
     else
       Serial.println ("jamais de la vie");
    
-    digitalWrite(PIN_LED2, iValue);
+    digitalWrite(PIN_LED_B, iValue);
     
     // I send back OK msg
     String msg2py = msg2mqttStart + command + F("/OK:") + sValue + msg2pyEnd;
@@ -208,7 +209,7 @@ int ledHeater(const String& sOnOff)
     String sValue = sOnOff.substring(ind+1);
     // value must be  ON  or  OFF
     if ( ( ! sValue.equals("ON")) && ( ! sValue.equals("OFF")) )   {
-      LOG_ERROR(F("value must be ON or OFF"));
+      LOG_ERROR(command+ F(":value must be ON or OFF"));
       String msg2py = msg2pyStart + command + F("/KO") + msg2pyEnd;
       Serial.print(msg2py);
       return 2;

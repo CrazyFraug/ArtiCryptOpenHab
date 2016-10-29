@@ -245,7 +245,7 @@ int ledBlinkTime(const String& sCmdAndBlinkTime)
     return 0;
 }
 
-// tha function is called in the loop
+// that function is called in the loop
 // it blinks LED at speed blinkTime (global variable)
 void blinkLed() {
   static long lastChange=0;

@@ -31,7 +31,7 @@ endOfLine='\n'
 msg2py='2py'
 msg2mqtt='2mq'
 
-sleepBetweenLoop=1    # sleep time (eg: 1s) to slow down loop
+sleepBetweenLoop=5    # sleep time (eg: 1s) to slow down loop
 namePy='py0'
 topFromPy= namePy + '/'
 topFromOH='oh/'
@@ -82,7 +82,7 @@ def read_args(argv):
 		elif opt in ("-b", "--broker"):
 			hostMQTT = arg
 		elif opt in ("-n", "--namepy"):
-			namepy = arg
+			namePy = arg
 		elif opt in ("-t", "--mytopic1"):
 			myTopic1 = arg
 		elif opt in ("-u", "--mytopic2"):
