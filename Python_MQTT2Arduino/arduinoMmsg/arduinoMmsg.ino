@@ -2,6 +2,7 @@
 #define LOG_ERROR(str)   Serial.println(str)
 
 #include "msgFromMQTT.h"
+String sketchFullName = __FILE__;
 
 
 #define PIN_CAPTOR  10
@@ -76,15 +77,7 @@ void loop()
 
 void serialEvent() 
 {
-  while(Serial.available()) 
-  {
-    char inChar = (char)Serial.read();
-    
-    if(inChar == '\n') 
-      inputMessageReceived = true;
-    else
-      inputMessage += inChar;
-  }
+  serialEventMFMQTT();
 }
 
 /*---------------------------------------------------------------*/

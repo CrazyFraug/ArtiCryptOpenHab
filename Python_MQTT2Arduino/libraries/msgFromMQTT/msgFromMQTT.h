@@ -3,9 +3,13 @@
 
 #if defined(CALL_FROM_MSG_FROM_MQTT)
 #define EXTERN_MFMQTT 
+extern String sketchFullName ;
 #else
 #define EXTERN_MFMQTT extern
 #endif
+
+// You have to define sketchFullName in your main file sketch.ino, this way
+//String sketchFullName = __FILE__;
 
 
 struct stListPin { int numPin; char *namePin; 
@@ -88,6 +92,17 @@ Commande cmds[] = {
 };
 int cmdsSize = sizeof(cmds) / sizeof(Commande);
 */
+
+// you need to read serial and empty buffer into inputMessage
+// for this you can call  serialEventMFMQTT in serialEvent function, like that
+/*
+void serialEvent() 
+{
+  serialEventMFMQTT();
+}
+*/
+
+void serialEventMFMQTT();
 
 // because of bad communication, some messages may be stucked in
 //   serial buffer. If so, we trace it

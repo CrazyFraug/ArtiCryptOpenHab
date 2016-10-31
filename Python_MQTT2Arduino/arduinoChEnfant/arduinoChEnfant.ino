@@ -2,7 +2,7 @@
 #define LOG_ERROR(str)   Serial.println(str)
 
 #include "msgFromMQTT.h"
-
+String sketchFullName = __FILE__;
 
 #define PIN_LED_A     3
 #define PIN_LED_B     5
@@ -80,18 +80,9 @@ void loop()
 }
 
 
-
 void serialEvent() 
 {
-  while(Serial.available()) 
-  {
-    char inChar = (char)Serial.read();
-    
-    if(inChar == '\n') 
-      inputMessageReceived = true;
-    else
-      inputMessage += inChar;
-  }
+  serialEventMFMQTT();
 }
 
 /*---------------------------------------------------------------*/

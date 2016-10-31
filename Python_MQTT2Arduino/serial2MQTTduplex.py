@@ -109,7 +109,7 @@ if __name__ == "__main__":
 #   because it must not grow big !
 def checkLogfileSize(logfile):
 	global logStartTime
-	if (time.time() - logStartTime) > 30:
+	if (time.time() - logStartTime) > 600:
 		#print('reOpenLogfile of name:' + logfile.name)
 		reOpenLogfile(logfile.name)
 
@@ -143,10 +143,20 @@ def on_message_myTopicOH(client, userdata, msg):
 # The callback for when a PUBLISH message is received from the server.
 # usually  we go to a specific callback that we have defined for each topic
 def on_message_myTopicSys(client, userdata, msg):
-	print("spec callbackSys,"+msg.topic+":"+str(msg.payload))
+	logp("spec callbackSys,"+msg.topic+":"+str(msg.payload), 'info')
 	cmd = msg.topic.replace(myTopic1, '').replace(topFromSys, '').replace('#','')
 	cmd2arduino = prefAT + cmd + ':' + str(msg.payload)+ endOfLine
 	ser.write(cmd2arduino)
+
+# in this function, the script query a value to arduino
+#   arduino will answer by sending the value of its sensor
+# Currently the function is not used, because OpenHab query the value
+#   and the python script transmits the querry transparently
+def queryValue():
+	cmd = (prefDO + cmdSendValue + endOfLine).encode('utf-8')
+	ser.write(cmd)
+	logp (cmd)
+
 
 # read all available messages from arduino
 def readArduinoAvailableMsg(seri):
@@ -200,9 +210,7 @@ mqttc.loop_start()
 # then I publish it
 while True:
 	time.sleep(sleepBetweenLoop)
-	cmd = (prefDO + cmdSendValue + endOfLine).encode('utf-8')
-	ser.write(cmd)
-	logp (cmd)
+	#queryValue()  # currently the querry is made by OpenHab
 	readArduinoAvailableMsg(ser)
 	#check size
 	checkLogfileSize(logfile)

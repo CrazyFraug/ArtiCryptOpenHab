@@ -39,7 +39,17 @@ int blinkTime=1000;   // used by blinkTime function
 /*
 void serialEvent() 
 {
-  while(Serial.available()) 
+  serialEventMFMQTT();
+}
+*/
+
+void serialEventMFMQTT() 
+{
+  // serialEvent is called between each loop
+  // we block msg transfer from buffer to inputMessage, that
+  //   means that a 2nd message will stay in buffer, until 
+  //   inputMessage is analyzed
+  while(Serial.available() && ( ! inputMessageReceived)  )
   {
     char inChar = (char)Serial.read();
     
@@ -49,7 +59,7 @@ void serialEvent()
       inputMessage += inChar;
   }
 }
-*/
+
 
 // check if a message has been received and analyze it
 // in your main sketch.ino, you have to update global var inputMessageReceived and inputMessage
@@ -140,8 +150,9 @@ int getSensorValue()
 int sendSketchId(const String& dumb)
 {
     int sensorVal = getSensorValue(); 
-    String sketchFullName = F(__FILE__);
-    // __FILE__ contains the full path. we strip it
+    // You have to define sketchFullName in your main file sketch.ino, this way
+    //String sketchFullName = __FILE__;
+    // __FILE__  contains the full path. we strip it
     int lastSlash = sketchFullName.lastIndexOf('/') +1;  // '/' is not for windows !
     String msg2py= msg2pyStart + "sketchId" + ":"  
                   + sketchFullName.substring(lastSlash) + msg2pyEnd;
