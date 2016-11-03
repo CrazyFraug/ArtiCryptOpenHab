@@ -13,8 +13,13 @@ import os, glob
 fileNameListSketch = 'listSketch.txt'
 repTmp='/media/ramdisk/openhab/logPython'
 
+hostMQTT='localhost'
 devSearchString='/dev/tty[UA]*'
 sleepBetweenLoop=2
+
+myTopicWatch='/domotique/watch/'
+topFromSys='sys/'
+reconnectTopic='reconnect'
 
 prefAT='AT+'
 cmdIdSketch='idSketch'
@@ -189,7 +194,8 @@ def askIdSketchSerial(adevSerial):
 		else :
 			# I dont analyse, but I print
 			logp (response, 'unknown from '+adevSerial)
-			ser.close()
+	# not found, I must not return empty value !
+	return ' '
 
 def giveUpdateListSerialDev(oldListDev, genericLsNameDev):
 	"list all serial dev connected; updates oldListDev, return list of new dev and dead dev"
@@ -207,9 +213,59 @@ def giveUpdateListSerialDev(oldListDev, genericLsNameDev):
 				lDevDead.append(dev)
 		logp('I have discovered changes in serial devices:  new: '+ str(lDevNew)+ ' and dead: '+str(lDevDead), 'info')
 	return [newListDev, lDevNew, lDevDead ]
-	
+
+
+# mosquitto part
+# --------------
+
+def treatSysMsg(msgCmd, msgVal):
+	"treat systeme msg coming from mosquitto"
+	if (msgCmd.count(reconnectTopic) > 0):
+		# the name of /dev/tty to reconnect is in msgVal
+		if (len(msgVal) == 0):
+			logp('name of device to reconnect is empty', 'warn')
+			return
+		# I take off dev from list
+		if (lastListDev.count(msgVal) > 0):
+			lastListDev.remove(msgVal)
+	# after removal from lastListDev, the script will see it exists and 
+	#   it will try to reconnect it
+
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, rc):
+	print("Connected to mosquitto with result code "+str(rc))
+	# Subscribing in on_connect() means that if we lose the connection and
+	# reconnect then subscriptions will be renewed.
+	mqttc.subscribe(myTopicWatch+ topFromSys +'#')
+	mqttc.message_callback_add(myTopicWatch+ topFromSys+ '#', on_message_myTopicSys)
+
+# The callback for when a PUBLISH message is received from the server.
+# usually we dont go to  on_message
+#  because we go to a specific callback that we have defined for each topic
+def on_message(client, userdata, msg):
+	"default callback for message. no action provided"
+	logp('not used msg:' +msg.topic+" : "+str(msg.payload), 'info')
+
+# The callback for when a PUBLISH message is received from the server.
+# usually  we go to a specific callback that we have defined for each topic
+def on_message_myTopicSys(client, userdata, msg):
+	logp("spec callbackSys,"+msg.topic+":"+str(msg.payload), 'info')
+	cmdMsg = msg.topic.replace(myTopicWatch, '').replace(topFromSys, '').replace('#','')
+	treatSysMsg(cmdMsg, msg.payload)
+
 
 #  main part of script
+#  -------------------
+
+
+# connection to mosquitto
+mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
+mqttc.on_message = on_message
+mqttc.on_connect = on_connect
+
+cr = mqttc.connect(hostMQTT, port=1883, keepalive=60, bind_address="")
+mqttc.loop_start()
+
 
 while True:
 	# check if the list of serial has changed

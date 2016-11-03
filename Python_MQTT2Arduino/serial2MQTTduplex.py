@@ -117,7 +117,7 @@ def checkLogfileSize(logfile):
 
 # The callback for when the client receives a CONNACK response from the server.
 def on_connect(client, userdata, rc):
-	print("Connected with result code "+str(rc))
+	print("Connected to mosquitto with result code "+str(rc))
 	# Subscribing in on_connect() means that if we lose the connection and
 	# reconnect then subscriptions will be renewed.
 	mqttc.subscribe(myTopic1+ topFromOH +'#')
