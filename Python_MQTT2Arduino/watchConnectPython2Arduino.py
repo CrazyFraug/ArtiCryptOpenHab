@@ -133,12 +133,16 @@ def launchSerial2MQTT(da, arepTmp,adevSerial):
 			logp('I refuse to launch serial2MQTTduplex ...', 'error')
 			logp(' because I cannot find key ' + keyNeeded, 'error')
 			return
-	cmd = 'serial2MQTTduplex.py'+ ' -t '+da['mytopic1'] + ' -n '+da['namepy'] + ' -l '+arepTmp+'/' + da['logfile'] + ' -b '+da['broker'] + ' -d ' + adevSerial +' &'
+	cmd = './serial2MQTTduplex.py'+ ' -t '+da['mytopic1'] + ' -n '+da['namepy'] + ' -l '+arepTmp+'/' + da['logfile'] + ' -b '+da['broker'] + ' -d ' + adevSerial +' &'
 	os.system(cmd)
 
 
 def askIdSketchSerial(adevSerial):
 	"try to know the id of the arduino sketch linked on serial adevSerial"
+	# I get rid of AMA0
+	if (adevSerial.count('AMA') > 0):
+		return ' '
+	#
 	logp('trying to recognize arduino sketch on serial:' + adevSerial , 'info')
 	rIdSketch = ''
 	try:
@@ -154,12 +158,17 @@ def askIdSketchSerial(adevSerial):
 		time.sleep(3)
 	except:
 			logp ('could not ask idSketch to serial '+adevSerial , 'warning')
-			return ''
+			return ' '
 	#
-	# I send a sys cmd to ask for id
-	cmd = (prefAT + cmdIdSketch + endOfLine)
-	ser.write(cmd)
-	logp (cmd)
+	try:
+		# I send a sys cmd to ask for id
+		cmd = (prefAT + cmdIdSketch + endOfLine)
+		ser.write(cmd)
+		logp (cmd)
+	except:
+		logp('may be not a serial com: '+adevSerial, 'info')
+		ser.close()
+		return ' '
 	# I give time to respond
 	time.sleep(0.2)
 	# I sort the response, I will get rid of unused messages
