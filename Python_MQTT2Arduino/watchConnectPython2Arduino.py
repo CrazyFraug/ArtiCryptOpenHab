@@ -136,7 +136,6 @@ while True:
 	# check if the list of serial has changed
 	listDevNew=[]; listDevDead=[]
 	[lastListDev, listDevNew, listDevDead] = giveUpdateListSerialDev(lastListDev, devSearchString)
-	print('l:'+ str(lastListDev) + '   n:'+str(listDevNew) + '   d:'+str(listDevDead))
 	#
 	# we remove dead dev from list of active dev
 	for dev in listDevDead:
