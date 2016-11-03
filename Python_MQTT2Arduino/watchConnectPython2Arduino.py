@@ -113,7 +113,7 @@ def askIdSketchSerial(adevSerial):
 			logp (response, 'unknown from '+adevSerial)
 
 def giveUpdateListSerialDev(oldListDev, genericLsNameDev):
-	"list all serial dev connected; updates oldListDev, return list of new dev"
+	"list all serial dev connected; updates oldListDev, return list of new dev and dead dev"
 	newListDev = glob.glob(genericLsNameDev)
 	newListDev.sort()
 	lDevNew = []; lDevDead = []
@@ -122,17 +122,27 @@ def giveUpdateListSerialDev(oldListDev, genericLsNameDev):
 		for dev in newListDev:
 			if oldListDev.count(dev) == 0:
 				lDevNew.append(dev)
-		logp('I have discovered serial devices:  new: '+ str(lDevNew)+ ' and dead: '+str(lDevDead), 'info')
+		# I look for dead (not) connected device
+		for dev in oldListDev:
+			if newListDev.count(dev) == 0:
+				lDevDead.append(dev)
+		logp('I have discovered changes in serial devices:  new: '+ str(lDevNew)+ ' and dead: '+str(lDevDead), 'info')
 	return [newListDev, lDevNew, lDevDead ]
 	
 
 #  main part of script
-devSearchString = 'li*'
+
 while True:
 	# check if the list of serial has changed
 	listDevNew=[]; listDevDead=[]
 	[lastListDev, listDevNew, listDevDead] = giveUpdateListSerialDev(lastListDev, devSearchString)
 	print('l:'+ str(lastListDev) + '   n:'+str(listDevNew) + '   d:'+str(listDevDead))
+	#
+	# we remove dead dev from list of active dev
+	for dev in listDevDead:
+		if ( startedSerial2MQTT.has_key(dev) ):
+			del startedSerial2MQTT[dev]
+	#
 	# if we detect new connected device, we try to connect python com script
 	if (len (listDevNew) > 0):
 		# we update list of scripts
@@ -145,23 +155,17 @@ while True:
 			logp('trying to recognize and connect new serial device: '+ ndl, 'info')
 			idSketch = askIdSketchSerial(ndl)
 			if dSketch.has_key(idSketch):
-				launchSerial2MQTT(dSketch[idSketch], repTmp, devSerial )
+				launchSerial2MQTT(dSketch[idSketch], repTmp, ndl )
+				# I am trusty, I immediately add it to active device list
+				startedSerial2MQTT.update({ndl:idSketch})
 			else:
 				logp('I dont have this arduino id sketch in my listing file:' + idSketch, 'error')
 	#
+	# if there was an update, I log the new list of started dev
+	if (len (listDevNew) > 0  or len (listDevDead) > 0):
+		logp('list of started device:' + str(startedSerial2MQTT), 'info')
+	#
 	#
 	time.sleep(sleepBetweenLoop)
-
-
-devSerial = '/dev/ttyUSB0'
-
-idSketch = askIdSketchSerial(devSerial)
-print ('serial: '+ devSerial + ' has id: ' +idSketch)
-
-if dSketch.has_key(idSketch):
-	launchSerial2MQTT(dSketch[idSketch], repTmp, devSerial )
-else:
-	logp('I dont have this arduino id sketch in my listing file:' + idSketch, 'error')
-
 
 
