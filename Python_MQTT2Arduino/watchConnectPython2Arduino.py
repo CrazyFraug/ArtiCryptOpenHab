@@ -12,7 +12,7 @@ import os, glob
 
 fileNameListSketch = 'listSketch.txt'
 repTmp='/media/ramdisk/openhab/logPython'
-repTmp='/home/arnaud/Workspaces/Raspberry/openhab-200/conf/Python_MQTT2Arduino'
+
 devSearchString='/dev/tty[UA]*'
 sleepBetweenLoop=2
 
@@ -25,11 +25,79 @@ logfile=sys.stdout
 
 startedSerial2MQTT = {}
 lastListDev = []
-listActiveDev = []
+
 
 # use to sort log messages
 def logp (msg, gravity='trace'):
 	print('['+gravity+']' + msg, file=logfile)
+
+# log file must not grow big
+# I need to overwrite it often
+def reOpenLogfile(logfileName):
+	"re open logfile, I do it because it must not grow big"
+	global logStartTime, logfile, startedSerial2MQTT
+	#
+	if logfileName != '' :
+		try:
+			# I close file if needed
+			if ( not logfile.closed) and (logfile.name != '<stdout>') :
+				logfile.close()
+			# file will be overwritten
+			if (logfileName != '<stdout>') :
+				logfile = open(logfileName, "w", 1)
+			logStartTime = time.time()
+			logp('logStartTime:' + time.asctime(time.localtime(time.time())), 'info')
+			logp('list of started devices:' + str(startedSerial2MQTT), 'info')
+		except IOError:
+			print('[error] could not open logfile:' + logfileName)
+			sys.exit(3)
+	else :
+		print('I cant re open logfile. name is empty')
+
+
+
+def read_args(argv):
+	# optional args have default values above
+	global logfile, repTmp
+	logfileName = ''
+	try:
+		opts, args = getopt.getopt(argv,"hr:l:",["reptmp=","logfile="])
+	except getopt.GetoptError:
+		print ('watchConnectPython2Arduino.py -r <reptmp> -l <logfile>')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '-h':
+			print ('watchConnectPython2Arduino.py -r <reptmp> -l <logfile>')
+			sys.exit()
+		elif opt in ("-l", "--logfile"):
+			if (arg.count('stdout') > 0) :
+				logfileName = ''
+				logfile = sys.stdout
+				print ('logfile = ' + str(logfile))
+			else:
+				logfileName = arg
+		elif opt in ("-t", "--reptmp"):
+			repTmp = arg
+	logp('repTmp is '+ repTmp, 'debug')
+	logp('logfile is '+ logfileName, 'debug')
+	# I try to open logfile
+	if logfileName != '' :
+		reOpenLogfile(logfileName)
+
+
+logStartTime = time.time()
+if __name__ == "__main__":
+	read_args(sys.argv[1:])
+
+
+# if logfile is old, we remove it and overwrite it
+#   because it must not grow big !
+def checkLogfileSize(logfile):
+	"if logfile is old, we remove it and overwrite it because it must not grow big !"
+	global logStartTime
+	if (time.time() - logStartTime) > 600:
+		#print('reOpenLogfile of name:' + logfile.name)
+		reOpenLogfile(logfile.name)
 
 
 def readListSketchFromFile(fileName):
@@ -164,6 +232,8 @@ while True:
 	if (len (listDevNew) > 0  or len (listDevDead) > 0):
 		logp('list of started device:' + str(startedSerial2MQTT), 'info')
 	#
+	#check size, logfile should not get too big
+	checkLogfileSize(logfile)
 	#
 	time.sleep(sleepBetweenLoop)
 

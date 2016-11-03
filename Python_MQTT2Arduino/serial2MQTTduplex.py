@@ -45,6 +45,7 @@ def logp (msg, gravity='trace'):
 # log file must not grow big
 # I need to overwrite it often
 def reOpenLogfile(logfileName):
+	"re open logfile, I do it because it must not grow big"
 	global logStartTime, logfile
 	#
 	if logfileName != '' :
@@ -108,9 +109,9 @@ if __name__ == "__main__":
 # if logfile is old, we remove it and overwrite it
 #   because it must not grow big !
 def checkLogfileSize(logfile):
+	"if logfile is old, we remove it and overwrite it because it must not grow big !"
 	global logStartTime
 	if (time.time() - logStartTime) > 600:
-		#print('reOpenLogfile of name:' + logfile.name)
 		reOpenLogfile(logfile.name)
 
 
