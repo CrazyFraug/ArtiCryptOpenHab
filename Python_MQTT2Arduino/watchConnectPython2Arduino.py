@@ -142,7 +142,7 @@ def askIdSketchSerial(adevSerial):
 	logp('trying to recognize arduino sketch on serial:' + adevSerial , 'info')
 	rIdSketch = ''
 	try:
-		ser = serial.Serial(adevSerial, baudrate=9600, timeout=0.2)
+		ser = serial.Serial(adevSerial, baudrate=9600, timeout=0.2, writeTimeout=0.2)
 		logp (str(ser), 'info')
 		time.sleep(0.2)
 		#
@@ -175,10 +175,12 @@ def askIdSketchSerial(adevSerial):
 			nameInd = response.rfind(':')	
 			if (nameInd >= 0):
 				rIdSketch = response[nameInd+1:]
+				ser.close()
 				return rIdSketch
 		else :
 			# I dont analyse, but I print
 			logp (response, 'unknown from '+adevSerial)
+			ser.close()
 
 def giveUpdateListSerialDev(oldListDev, genericLsNameDev):
 	"list all serial dev connected; updates oldListDev, return list of new dev and dead dev"
