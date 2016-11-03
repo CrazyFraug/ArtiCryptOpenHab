@@ -5,4 +5,3 @@
 {'arduinoLiving.ino':   {'mytopic1':'/domotique/living/', 'mytopic2':'/domotique/garage/topictest2/', 'namepy':'py3', 'logfile':'arduinoLiving.ino.log', 'broker':'localhost'} }
 {'arduinoVolet1.ino':   {'mytopic1':'/domotique/volet1/', 'mytopic2':'/domotique/garage/topictest2/', 'namepy':'py4', 'logfile':'arduinoVolet1.ino.log', 'broker':'localhost'} }
 {'arduinoMmsg.ino': {'mytopic1':'/domotique/messagetest/', 'mytopic2':'/domotique/garage/topictest2/', 'namepy':'py10', 'logfile':'arduinoMmsg.ino.log', 'broker':'localhost'} }
-

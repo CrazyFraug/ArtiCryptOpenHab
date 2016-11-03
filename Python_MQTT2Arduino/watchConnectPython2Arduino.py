@@ -76,7 +76,7 @@ def read_args(argv):
 				print ('logfile = ' + str(logfile))
 			else:
 				logfileName = arg
-		elif opt in ("-t", "--reptmp"):
+		elif opt in ("-r", "--reptmp"):
 			repTmp = arg
 	logp('repTmp is '+ repTmp, 'debug')
 	logp('logfile is '+ logfileName, 'debug')
@@ -114,14 +114,14 @@ def readListSketchFromFile(fileName):
 	dSketch = {}
 	for strl in strLines:
 		try:
-			itemDict = ast.literal_eval(strl)
+			if (strl[0] != '#'):
+				itemDict = ast.literal_eval(strl)
+				if (type(itemDict) == type({})):
+					dSketch.update(itemDict)
+				else:
+					logp ('line NOT dict:' + strl)
 		except:
 		  logp('line fails as dict:' + strl)
-		else:
-			if (type(itemDict) == type({})):
-				dSketch.update(itemDict)
-			else:
-				logp ('line NOT dict:' + strl)
 	fileListSketch.close()
 	return dSketch
 
@@ -147,7 +147,7 @@ def askIdSketchSerial(adevSerial):
 		time.sleep(0.2)
 		#
 		#I empty arduino serial buffer
-		response = ser.readline()
+		response = ser.read(100)
 		logp ("arduino buffer garbage: " + str(response), 'info')
 		#
 		# when we open serial to an arduino, this reset the board; it needs ~3s
