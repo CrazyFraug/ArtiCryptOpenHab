@@ -206,9 +206,9 @@ int sendListPin(const String& dumb)
 {
     String availPin = "";
     if (listPinSize >= 0)
-       availPin = availPin + listPin[0].numPin +" "+ listPin[0].namePin;
+       availPin = availPin + " " + listPin[0].numPin +" "+ listPin[0].namePin;
     for (int i=1; i<listPinSize; i++)
-       availPin = availPin + "," + listPin[i].numPin +" "+ listPin[i].namePin;
+       availPin = availPin + ", " + listPin[i].numPin +" "+ listPin[i].namePin;
     
     String msg2py = msg2pyStart + "listPin" + ":" + availPin + msg2pyEnd;
     Serial.print(msg2py);
