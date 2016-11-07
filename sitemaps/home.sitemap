@@ -5,8 +5,17 @@ sitemap home label="Main Menu"
 		Group item=gChambreParent label="Chambre parent" icon="bedroom"
 		Group item=gChambreEnfant label="Chambre enfant" icon="boy_1"
 		Group item=gSanitaire label="Sanitaire" icon="bath"
+	}
+	Frame label="Jardin à compléter" {
 		Group item=gGarage label="Garage" icon="garage"
 		Group item=gJardin label="Jardin" icon="garden"
+	}
+	Frame label="Groupes" {
+		Switch item=Lumieres mappings=[OFF="All Off"]
+		Group item=Lumieres
+		Switch item=Radiateurs mappings=[OFF="All Off"]
+		Group item=Radiateurs
+		Text item=Temperature
 	}
 	Frame label="Weather" {
 		Text item=psu_temp  
@@ -37,7 +46,7 @@ sitemap home label="Main Menu"
     Frame label="Demo" {
 		Text item=CurrentDate
 		Text label="Group Demo" icon="firstfloor" {
-			Switch item=Lights mappings=[OFF="All Off"]
+			Switch item=Lumieres mappings=[OFF="All Off"]
 			Group item=Heating
 			Group item=Windows
 			Text item=Temperature
