@@ -522,6 +522,7 @@ int cmdPinWrite(const String& pin_digitAnalog_val) {
 int  checkNoStuckMessageInBuffer() {
   static bool msgHasBegun;
   static long lastPrint = millis();
+  static int nbWarn;
 
   // we update if a msg has just begun 
   if (inputMessage.length()>0)   {
@@ -530,17 +531,26 @@ int  checkNoStuckMessageInBuffer() {
       lastPrint = millis();
     }
   }
-  else
+  else   {
      msgHasBegun = false;
+     nbWarn = 0;
+  }
   
   // I display input message every second, if it is not complete
   // It should not happen since the message will be processed too quickly
-  if (( ! inputMessageReceived ) && (msgHasBegun)) {
-    if ( (millis() - lastPrint > 1000) && 
-         inputMessage.length()>0 ) {
-      Serial.println(String(F("msg incomplete:")) + inputMessage + F(":end"));
-      lastPrint = millis();
-      return 1;
+  if (( ! inputMessageReceived ) && (msgHasBegun) && (nbWarn < 2) )   {
+    if ( (millis() - lastPrint > 1000) && inputMessage.length()>0 )   {
+      if (nbWarn == 0)   {
+        Serial.println(String(F("msg incomplete:")) + inputMessage + F(":end"));
+        lastPrint = millis();
+        nbWarn = 1;
+        return 1;
+      }
+      else if (nbWarn == 1)   {
+        Serial.println(String(F("msg incomplete:")) + inputMessage + F(":last warning"));
+        nbWarn = 2;
+        return 2;
+      }
     }
   }
   
