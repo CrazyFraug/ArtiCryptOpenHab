@@ -81,10 +81,12 @@ Contact Window_FF_Office_Door   "Balcony Door [MAP(en.map):%s]"     (FF_Office, 
 Contact Garage_Door             "Garage Door [MAP(en.map):%s]"      (Garden, Windows)
 
 Group Weather_Chart
-Number Weather_Temperature      "Outside Temperature [%.1f °C]" <temperature> (Weather, Weather_Chart) { channel="yahooweather:weather:berlin:temperature" }
+Number Weather_Temperature      "Outside Temperature [%.1f °C]" <temperature> (Weather, Weather_Chart) // { channel="yahooweather:weather:berlin:temperature" } 
+//{ http="<[http://weather.yahooapis.com/forecastrss?w=638242&u=c:60000:XSLT(yahoo_weather_temperature.xsl)]" }
+//{ channel="yahooweather:weather:berlin:temperature" }
 Number Weather_Temp_Max         "Todays Maximum [%.1f °C]"      <temperature> (Weather, Weather_Chart)
 Number Weather_Temp_Min         "Todays Minimum [%.1f °C]"      <temperature> (Weather, Weather_Chart)
-Number Weather_Chart_Period     "Chart Period"
+Number Weather_Chart_Period     "Chart Period"                <clock>
 DateTime Weather_LastUpdate     "Last Update [%1$ta %1$tR]"     <clock>
 Number Sun_Elevation            "Sun Elevation"                 <sun>       { channel = "astro:sun:home:position#elevation" }
 Number Sun_Azimuth              "Sun Azimuth"                   <sun>       { channel = "astro:sun:home:position#azimuth" }
