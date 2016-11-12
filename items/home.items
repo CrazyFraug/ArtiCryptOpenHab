@@ -9,7 +9,6 @@ Group Weather       "Weather"       <sun>
 Group Status
 Group Shutters
 
-
 /* active groups */
 Group:Switch:OR(ON, OFF)        Lumieres     "Toutes les lumières [(%d)]"
 Group:Switch:OR(ON, OFF)        Radiateurs   "Tous les radiateurs [(%d)]"     <heating>
@@ -36,7 +35,9 @@ Switch Lumiere_Jardin_Portail    "Portail"       (gJardin, Lumieres)
 Switch Lumiere_Jardin_Chemin    "Chemin"       (gJardin, Lumieres)
 Switch Lumiere_Jardin_Porche   "Porche"       (gJardin, Lumieres)
 
-
+/* that item is just a number that is incremented during a Hola with lights; see home.rules */
+Number Lumiere_Hola_Select
+Switch Lumiere_Hola_Switch   "Hola lumineuse"
 
 /* Heating */
 
@@ -105,9 +106,9 @@ Dimmer DemoBlinds               "Blinds [%d %%]"        <rollershutter>
 Number Scene_General            "Scene"                 <sofa>
 Number Radio_Station            "Radio"                 <network>
 Dimmer Volume                   "Volume [%.1f %%]"
-Number Temperature_Setpoint     "Temperature TEST [%.1f °C]" <temperature>  {mqtt="<[local_mqtt:py/weathertest/mytemp:state:default]"}
+Number Temperature_Setpoint     "Temperature TEST [%.1f °C]" <temperature>  {mqtt="<[local_mqtt:/domotique/outside/+/mytemp:state:default]"}
 Location DemoLocation           "Brandenburg Gate Berlin"
 Number Wifi_Level               "Wifi Level [%d/4]"     <signal>        (FF_Office)
-Number psu_temp "My Temp [%.1f %%]" <temperature> {mqtt="<[local_mqtt:py/weathertest/temperaturetest:state:default]"}
+
 
 

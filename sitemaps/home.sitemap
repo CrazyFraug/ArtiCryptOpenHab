@@ -17,8 +17,10 @@ sitemap home label="Main Menu"
 		Group item=Radiateurs
 		Text item=Temperature
 	}
+	Frame label="FUN" {
+		Switch item=Lumiere_Hola_Switch
+	}
 	Frame label="Weather" {
-		Text item=psu_temp  
 		Text item=Temperature_Setpoint
 		Text item=Weather_Temperature valuecolor=[Weather_LastUpdate=="NULL"="lightgray",Weather_LastUpdate>90="lightgray",>25="orange",>15="green",>5="orange",<=5="blue"] {
 			Frame {

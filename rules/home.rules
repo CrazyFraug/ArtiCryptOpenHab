@@ -5,6 +5,7 @@ import org.openhab.model.script.actions.*
 var Number counter = 1
 var Timer timerDemo = null
 var Timer timerRepas = null
+var Timer timerHola = null
 
 
 rule "Timer Repas"
@@ -30,6 +31,67 @@ then
 	}
 end
 
+rule "Create fake temperature"
+	when 
+		System started or
+		Time cron "0 0/1 * * * ?"
+	then
+		Temperature?.members.forEach(temperature|
+			postUpdate(temperature, 20.0 + (25.0 - (Math::random * 50.0).intValue) / 10.0)
+		)
+		postUpdate(Temperature_Setpoint, 22)
+end
+
+
+/* it begins Hola with lights. Successive lights will be switched ON/OFF */
+/*   by rule "Hola with lights incremental"  */
+rule "Hola with lights begin"
+when
+	Item Lumiere_Hola_Switch received command
+then
+	sendCommand(Lumiere_Hola_Select, 0)
+end
+
+
+rule "Hola with lights increment"
+when
+	Item Lumiere_Hola_Select received command
+then
+	var Number iLightSelect = receivedCommand as DecimalType
+	
+	/* the value -1 stops the Hola after one turn */
+	if (iLightSelect < 0) {
+	   iLightSelect = 0
+	   return 0
+	}
+	
+	var cmdLight = OFF
+	// we switch OFF previous light
+	if (iLightSelect == 1) sendCommand(Lumiere_Cuisine, cmdLight)
+	else if (iLightSelect == 2) sendCommand(Lumiere_Coin_Repas, cmdLight)
+	else if (iLightSelect == 3) sendCommand(Lumiere_Chambre_Parent_Plafonnier, cmdLight)
+	else if (iLightSelect == 4) sendCommand(Lumiere_Chambre_Parent_Lit, cmdLight)
+	else if (iLightSelect == 5) sendCommand(Lumiere_Chambre_Enfant_Lit1, cmdLight)
+	else if (iLightSelect == 6) sendCommand(Lumiere_Chambre_Enfant_Lit2, cmdLight)
+	else if (iLightSelect == 7) sendCommand(Lumiere_Salon, cmdLight)
+	
+	iLightSelect = iLightSelect + 1
+	cmdLight = ON
+	// we switch ON new light
+	if (iLightSelect == 1) sendCommand(Lumiere_Cuisine, cmdLight)
+	else if (iLightSelect == 2) sendCommand(Lumiere_Coin_Repas, cmdLight)
+	else if (iLightSelect == 3) sendCommand(Lumiere_Chambre_Parent_Plafonnier, cmdLight)
+	else if (iLightSelect == 4) sendCommand(Lumiere_Chambre_Parent_Lit, cmdLight)
+	else if (iLightSelect == 5) sendCommand(Lumiere_Chambre_Enfant_Lit1, cmdLight)
+	else if (iLightSelect == 6) sendCommand(Lumiere_Chambre_Enfant_Lit2, cmdLight)
+	else if (iLightSelect == 7) sendCommand(Lumiere_Salon, cmdLight)
+	else   iLightSelect = -1
+	
+	/* we trigger 1s for next light */
+	timerHola = createTimer(now.plusSeconds(1)) [|
+		sendCommand(Lumiere_Hola_Select, iLightSelect)
+	]
+end
 
 rule "Timer Demo"
 when
