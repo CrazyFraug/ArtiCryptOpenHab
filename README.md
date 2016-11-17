@@ -1,5 +1,5 @@
 # ArtiCryptOpenHab
-Centrale domotique par artilect, pour futurapolis 2016
+Centrale domotique par artilect, pour futurapolis 2016 
 avec le logiciel OpenHab.
 
 La plupart des fichiers sont ceux qu'on trouve dans le repertoire *conf* de OpenHab. 
