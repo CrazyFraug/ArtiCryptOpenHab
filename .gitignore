@@ -1,3 +1,5 @@
 #exclude those files and dir
 *.swp
 *.log
+mysql.cfg
+
