@@ -9,8 +9,8 @@ import sys, getopt
 import ast
 import os, glob
 
-
-fileNameListSketch = 'listSketch.txt'
+repSketch='/opt/openhab2/conf/Python_MQTT2Arduino'
+fileNameListSketch = repSketch + '/listSketch.txt'
 repTmp='/media/ramdisk/openhab/logPython'
 
 hostMQTT='localhost'
@@ -138,7 +138,7 @@ def launchSerial2MQTT(da, arepTmp,adevSerial):
 			logp('I refuse to launch serial2MQTTduplex ...', 'error')
 			logp(' because I cannot find key ' + keyNeeded, 'error')
 			return
-	cmd = './serial2MQTTduplex.py'+ ' -t '+da['mytopic1'] + ' -n '+da['namepy'] + ' -l '+arepTmp+'/' + da['logfile'] + ' -b '+da['broker'] + ' -d ' + adevSerial +' &'
+	cmd = repSketch+ '/serial2MQTTduplex.py'+ ' -t '+da['mytopic1'] + ' -n '+da['namepy'] + ' -l '+arepTmp+'/' + da['logfile'] + ' -b '+da['broker'] + ' -d ' + adevSerial +' &'
 	os.system(cmd)
 
 

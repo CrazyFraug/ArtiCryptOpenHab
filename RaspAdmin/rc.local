@@ -24,6 +24,7 @@ sudo mount -t tmpfs -o size=2m,uid=119,gid=119 tmpfs /media/ramdisk/openhab
 sudo -u openhab mkdir /media/ramdisk/openhab/logPython
 sudo -u openhab chmod g+w /media/ramdisk/openhab/logPython
 
-sudo -u openhab /opt/openhab2/conf/Python_MQTT2Arduino/watchConnectPython2Arduino.py -l /media/ramdisk/openhab/logPython/watchConnect.log
+cd /opt/openhab2/conf/Python_MQTT2Arduino
+sudo -u openhab /opt/openhab2/conf/Python_MQTT2Arduino/watchConnectPython2Arduino.py -l /media/ramdisk/openhab/logPython/watchConnect.log &
 
 exit 0
