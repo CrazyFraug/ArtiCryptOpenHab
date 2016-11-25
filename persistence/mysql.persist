@@ -14,5 +14,6 @@ Strategies {
 Items {
 	// log all temperatures on every change
 	Temperature* -> "temperatures"
-	Weather_Temperature -> "Weather_Temperature"
+	Weather_Chart* : strategy = everyChange
+	//Weather_Chart* -> "Weather_Temperature"
 }
